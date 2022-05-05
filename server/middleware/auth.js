@@ -6,15 +6,21 @@ import topLevelAuthRedirect from '../helpers/top-level-auth-redirect.js';
 
 async function createShopifySection(shop, token) {
   const content = `
+    {% if customer %}
     <button 
       id="crypto-wallet-button" 
       style="
         background-color: {{section.settings.button_color}};
         color: {{section.settings.button_text_color}};
+        border-radius: 5px;
+        padding: 10px;
+        width: 100px;
+        border: none;
       "
     >
       {{section.settings.button_label}}
     </button>
+    {% endif %}
 
     {% schema %}
     {

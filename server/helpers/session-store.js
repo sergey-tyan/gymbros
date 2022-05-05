@@ -35,6 +35,24 @@ class RedisStore {
     }
   }
 
+  // async mapAddressToCustomer(address, customerId) {
+  //   try {
+  //     return await this.client.set(`address_${address}`, customerId);
+  //   } catch (err) {
+  //     // throw errors, and handle them gracefully in your application
+  //     throw new Error(err);
+  //   }
+  // }
+
+  // async getCustomerByAddress(address) {
+  //   try {
+  //     return await this.client.get(`address_${address}`);
+  //   } catch (err) {
+  //     // throw errors, and handle them gracefully in your application
+  //     throw new Error(err);
+  //   }
+  // }
+
   /*
     The storeCallback takes in the Session, and sets a stringified version of it on the redis store
     This callback is used for BOTH saving new Sessions and updating existing Sessions.

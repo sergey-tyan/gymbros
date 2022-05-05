@@ -27,6 +27,7 @@ function init() {
 }
 
 async function connectWallet() {
+  console.log('Connecting and fetching discount');
   if (!window.ethereum) {
     throw Error('No ethereum provider found');
   }
@@ -38,24 +39,37 @@ async function connectWallet() {
   }
   const discount = await getDiscountCodeForAccount(account);
   console.log({ discount });
+  if (!discount) {
+    return alert('no NFTs found');
+  }
+  window.location.href = `/discount/${discount}`; // this will apply the discount
 }
 
 async function getDiscountCodeForAccount(account) {
   const apiUrl = HOST + '/claim-discount';
 
-  // const apiUrl = 'https://powrful.ngrok.io/claim-discount';
-  console.log({ apiUrl });
-  const res = await fetch(`${apiUrl}?address=${account}&shop=${Shopify.shop}`);
-  const data = await res.json();
-  alert(JSON.stringify(data));
+  const customerId = window.__st.cid;
+  if (!customerId) {
+    alert('User is not logged in');
+  }
 
-  // TODO: check if account is eligible for discount on the backend
-  // Generate one time unique discount code using https://shopify.dev/api/admin-rest/2021-07/resources/discountcode#[post]/admin/api/2021-07/price_rules/%7Bprice_rule_id%7D/discount_codes.json
-  return 'pepe';
+  const params = {
+    customerId,
+    account,
+    shop: Shopify.shop,
+  };
+  const paramsString = new URLSearchParams(params).toString();
+
+  const res = await fetch(`${apiUrl}?${paramsString}`);
+  const data = await res.json();
+
+  return data.discountCode;
 }
 
 // const button = document.querySelector('.header-wrapper');
 const button = document.querySelector('#crypto-wallet-button');
-button.addEventListener('click', connectWallet);
+if (button !== null) {
+  button.addEventListener('click', connectWallet);
+}
 
 init();
