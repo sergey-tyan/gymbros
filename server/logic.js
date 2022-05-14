@@ -96,6 +96,7 @@ async function createOneTimeProductDiscount({
   productId,
   customerId,
   code,
+  price,
 }) {
   try {
     const priceRuleData = {
@@ -105,8 +106,8 @@ async function createOneTimeProductDiscount({
         target_type: 'line_item',
         target_selection: 'entitled',
         entitled_product_ids: [productId],
-        value_type: 'percentage',
-        value: '-100',
+        value_type: 'fixed_amount',
+        value: `-${price}`,
         customer_selection: 'prerequisite',
         prerequisite_customer_ids: [customerId],
         starts_at: new Date().toISOString(),
@@ -190,8 +191,9 @@ export function setup(app) {
     const apiClient = createApiClient(shop, token);
     // Checking if product is active in Shopify Admin panel
     const productRaw = await apiClient.get(`/products/${productId}.json`);
-    const { status } = productRaw.data.product;
-    console.log({ status });
+    const { status, variants } = productRaw.data.product;
+    const { variantId, price } = variants[0];
+
     if (status !== 'active') {
       return res.send({ error: 'Claiming is not possible at the moment' });
     }
@@ -201,7 +203,8 @@ export function setup(app) {
       apiClient,
       productId,
       customerId,
+      price,
       code: codeFromHash,
-    }).then(() => res.send({ discountCode: codeFromHash }));
+    }).then(() => res.send({ discountCode: codeFromHash, variantId }));
   });
 }

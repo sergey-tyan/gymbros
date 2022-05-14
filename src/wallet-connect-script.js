@@ -43,6 +43,17 @@ async function connectToMetamask() {
 const DISCOUNT_TYPES = {
   FIFTY: '/claim-discount',
   ITEMS: '/claim-items',
+};
+
+async function addProductToCart(variantId) {
+  if (!variantId) return;
+  await fetch(window.Shopify.routes.root + 'cart/add.js', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ items: [{ id: variantId, quantity: 1 }] }),
+  });
 }
 
 function claimDiscount(type) {
@@ -50,12 +61,15 @@ function claimDiscount(type) {
     alert('claiming ' + type);
     const url = DISCOUNT_TYPES[type];
     const account = await connectToMetamask();
-    const discount = await getDiscountCodeForAccount(account, url);
-    console.log({ discount });
-    if (!discount) {
+    const discountData = await getDiscountCodeForAccount(account, url);
+    console.log({ discountData });
+    if (!discountData.discountCode) {
       return alert('Cant claim discount');
     }
-    window.location.href = `/discount/${discount}`; // this will apply the discount
+    await addProductToCart(discountData.variantId);
+
+    // this will apply the discount and redirect to cart
+    window.location.href = `/discount/${discountData.discountCode}?redirect=/cart`;
   };
 }
 
@@ -79,7 +93,7 @@ async function getDiscountCodeForAccount(account, url) {
   if (!data.discountCode) {
     alert(JSON.stringify(data.error));
   }
-  return data.discountCode;
+  return data;
 }
 
 // const button = document.querySelector('.header-wrapper');
