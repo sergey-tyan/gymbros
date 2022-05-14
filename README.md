@@ -1,43 +1,48 @@
-# Shopify App Node
+# Shopify App For Gymbros
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE.md)
+## Config variables
 
-This is a sample app to help developers bootstrap their Shopify app development.
+- `CLAIM_SEASON` - (default is 1) current claim season, should be incremented every time new season starts
+- `S_1_TIER_1_PRODUCT_ID` - product id for the corresponding season and tier
+- `S_1_TIER_2_PRODUCT_ID` - product id for the corresponding season and tier
+- `S_1_TIER_3_PRODUCT_ID` - product id for the corresponding season and tier
+- `S_1_TIER_4_PRODUCT_ID` - product id for the corresponding season and tier
+- `NFT_ADDRESS` - address of the NFT contract
+- `INFURA_ID` - infura ID is needed for server to connect to the blockchain
+- `SHOPIFY_API_KEY`
+- `SHOPIFY_API_SECRET`
+- `SHOP` - shop url that looks like `[shop].myshopify.com`
+- `HOST` - app server host
+- `PORT` - 3000
+- `REDIS_URL` - redis url that stores all the data
+- `NODE_ENV` - `dev` or `production`
 
-It leverages the [Shopify API Library](https://github.com/Shopify/shopify-node-api) on the backend to create [an embedded app](https://shopify.dev/apps/tools/app-bridge/getting-started#embed-your-app-in-the-shopify-admin), and [Polaris](https://github.com/Shopify/polaris-react) and [App Bridge React](https://shopify.dev/tools/app-bridge/react-components) on the frontend.
+## 50% site-wide discount for NFT holders
 
-This is the repository used when you create a new Node app with the [Shopify CLI](https://shopify.dev/apps/tools/cli).
+Each time user presses "Claim discount" button, the server checks if the user currently holds any NFT-s, and if so, it will create a one-time 50% discount bound to that user. This is done to prevent users from sharing the discount codes with other users. After purchasing user will be able to claim another 50% discount.
 
-## Requirements
+## One-off free items.
 
-- If you don’t have one, [create a Shopify partner account](https://partners.shopify.com/signup).
-- If you don’t have one, [create a Development store](https://help.shopify.com/en/partners/dashboard/development-stores#create-a-development-store) where you can install and test your app.
-- **If you are not using the Shopify CLI**, in the Partner dashboard, [create a new app](https://help.shopify.com/en/api/tools/partner-dashboard/your-apps#create-a-new-app). You’ll need this app’s API credentials during the setup process.
+This is a bit complicated, but it works like this:
 
-## Installation
+- Current season and product id-s for each season and tier are stored in the config variables
+- Whenever user claims a free item according to user's tier, server creates a one-time discount code from user's address and season number using a hash function:
 
-Using the [Shopify CLI](https://github.com/Shopify/shopify-cli) run:
-
-```sh
-shopify app create node -n APP_NAME
+```js
+function createHash({ account, season }) {
+  const input = `${account}_${season}`;
+  return crypto.createHash('md5').update(input).digest('hex');
+}
 ```
 
-Or, you can run `npx degit shopify/shopify-app-node` and create a `.env` file containing the following values:
+- Since each discount code on Shopify has to be unique, this ensures that user can only claim once during the season.
+- Discount amount is the price of the product
+- The webhook that is triggered when user purchases the item marks the wallet that has claimed.
 
-```yaml
-SHOPIFY_API_KEY={api key}           # Your API key
-SHOPIFY_API_SECRET={api secret key} # Your API secret key
-SCOPES={scopes}                     # Your app's required scopes, comma-separated
-HOST={your app's host}              # Your app's host, without the protocol prefix
-```
+## Front-end buttons
 
-## Developer resources
+You can use existing or create 2 buttons with following id-s:
 
-- [Introduction to Shopify apps](https://shopify.dev/apps/getting-started)
-  - [App authentication](https://shopify.dev/apps/auth)
-- [Shopify CLI command reference](https://shopify.dev/apps/tools/cli/app)
-- [Shopify API Library documentation](https://github.com/Shopify/shopify-node-api/tree/main/docs)
-
-## License
-
-This repository is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+- `claim-50-discount-button` - for 50% discount claiming button
+- `claim-items-button` - for claiming free items button
+- Clicking on each button connects to the metamask and sends a request to the server that fetches discount

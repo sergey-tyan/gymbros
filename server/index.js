@@ -15,11 +15,14 @@ const TOP_LEVEL_OAUTH_COOKIE = 'shopify_top_level_oauth';
 
 const PORT = parseInt(process.env.PORT || '8081', 10);
 const isTest = process.env.NODE_ENV === 'test' || !!process.env.VITE_TEST_BUILD;
+
+const SCOPES =
+  'read_products,read_customers,read_discounts,write_discounts,write_script_tags,read_themes,write_themes,write_price_rules,read_orders';
 const sessionStorage = new RedisStore();
 Shopify.Context.initialize({
   API_KEY: process.env.SHOPIFY_API_KEY,
   API_SECRET_KEY: process.env.SHOPIFY_API_SECRET,
-  SCOPES: process.env.SCOPES.split(','),
+  SCOPES: SCOPES.split(','),
   HOST_NAME: process.env.HOST.replace(/https:\/\//, ''),
   API_VERSION: ApiVersion.April22,
   IS_EMBEDDED_APP: true,

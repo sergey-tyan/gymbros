@@ -8,19 +8,15 @@ async function createShopifySection(client) {
   const content = `
     {% if customer %}
     <button 
-    id="crypto-wallet-button" 
-      id="crypto-wallet-button" 
-    id="crypto-wallet-button" 
-      id="crypto-wallet-button" 
-    id="crypto-wallet-button" 
-    style="
-      background-color: {{section.settings.button_color}};
-      color: {{section.settings.button_text_color}};
-      border-radius: 5px;
-      padding: 10px;
-      width: 100px;
-      border: none;
-      cursor: pointer;
+      id="claim-50-discount-button" 
+      style="
+        background-color: {{section.settings.button_color}};
+        color: {{section.settings.button_text_color}};
+        border-radius: 5px;
+        padding: 10px;
+        width: 100px;
+        border: none;
+        cursor: pointer;
       "
     >
       Claim Discount
@@ -222,8 +218,7 @@ export default function applyAuthMiddleware(app, sessionStorage) {
           res.redirect(`/auth?shop=${req.query.shop}`);
           break;
         default:
-          res.status(500);
-          res.send(e.message);
+          res.redirect(`/?shop=${req.query.shop}&host=${req.query.host}`);
           break;
       }
     }

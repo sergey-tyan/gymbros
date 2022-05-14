@@ -4,7 +4,7 @@
   "scripts": {
     "build-script": "NODE_ENV=production webpack --config webpack.config.js",
     "watch-script": "NODE_ENV=development webpack --config webpack.config.js --watch",
-    "build": "npm run build:client && webpack --env.NODE_ENV=production",
+    "build": "npm run build:client && npm run build-script",
     "build:client": "vite build --outDir dist/client",
     "debug": "node --inspect-brk server/index.js",
     "dev": "cross-env NODE_ENV=development nodemon server/index.js --watch ./server & npm run watch-script",
@@ -19,12 +19,7 @@
     "node": ">=16.13.0"
   },
   "dependencies": {
-    "@apollo/client": "^3.5.10",
     "@ethersproject/providers": "^5.6.5",
-    "@shopify/app-bridge": "^2.0.22",
-    "@shopify/app-bridge-react": "^2.0.24",
-    "@shopify/app-bridge-utils": "^2.0.23",
-    "@shopify/polaris": "^9.2.2",
     "@shopify/shopify-api": "^3.0.0",
     "@vitejs/plugin-react": "1.2.0",
     "@walletconnect/web3-provider": "^1.7.8",

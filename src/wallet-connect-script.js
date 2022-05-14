@@ -5,7 +5,13 @@ function init() {
     throw Error('Install Metamask');
   }
 
-  ethereum.on('chainChanged', () => window.location.reload());
+  ethereum.on('chainChanged', (_chainId) => {
+    console.log({ _chainId });
+    if (_chainId !== '0x1') {
+      alert('Please switch to the Ethereum mainnet');
+    }
+    window.location.reload();
+  });
   ethereum.on('accountsChanged', (accounts) => {
     if (accounts.length > 0) {
       console.log(`Using account ${accounts[0]}`);
@@ -67,7 +73,9 @@ function claimDiscount(type) {
       return alert('Cant claim discount');
     }
     await addProductToCart(discountData.variantId);
-
+    if (type === 'ITEMS') {
+      alert('Checkout to get your free items');
+    }
     // this will apply the discount and redirect to cart
     window.location.href = `/discount/${discountData.discountCode}?redirect=/cart`;
   };
@@ -97,7 +105,7 @@ async function getDiscountCodeForAccount(account, url) {
 }
 
 // const button = document.querySelector('.header-wrapper');
-const button = document.querySelector('#crypto-wallet-button');
+const button = document.querySelector('#claim-50-discount-button');
 if (button != null) {
   button.addEventListener('click', claimDiscount('FIFTY'));
 }
