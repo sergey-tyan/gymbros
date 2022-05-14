@@ -26,7 +26,7 @@ function init() {
   });
 }
 
-async function connectWallet() {
+async function connectToMetamask() {
   console.log('Connecting and fetching discount');
   if (!window.ethereum) {
     throw Error('No ethereum provider found');
@@ -37,16 +37,30 @@ async function connectWallet() {
   if (!account) {
     throw Error('No account found');
   }
-  const discount = await getDiscountCodeForAccount(account);
-  console.log({ discount });
-  if (!discount) {
-    return alert('no NFTs found');
-  }
-  window.location.href = `/discount/${discount}`; // this will apply the discount
+  return account;
 }
 
-async function getDiscountCodeForAccount(account) {
-  const apiUrl = HOST + '/claim-discount';
+const DISCOUNT_TYPES = {
+  FIFTY: '/claim-discount',
+  ITEMS: '/claim-items',
+}
+
+function claimDiscount(type) {
+  return async function () {
+    alert('claiming ' + type);
+    const url = DISCOUNT_TYPES[type];
+    const account = await connectToMetamask();
+    const discount = await getDiscountCodeForAccount(account, url);
+    console.log({ discount });
+    if (!discount) {
+      return alert('Cant claim discount');
+    }
+    window.location.href = `/discount/${discount}`; // this will apply the discount
+  };
+}
+
+async function getDiscountCodeForAccount(account, url) {
+  const apiUrl = HOST + url;
 
   const customerId = window.__st.cid;
   if (!customerId) {
@@ -62,14 +76,22 @@ async function getDiscountCodeForAccount(account) {
 
   const res = await fetch(`${apiUrl}?${paramsString}`);
   const data = await res.json();
-
+  if (!data.discountCode) {
+    alert(JSON.stringify(data.error));
+  }
   return data.discountCode;
 }
 
 // const button = document.querySelector('.header-wrapper');
 const button = document.querySelector('#crypto-wallet-button');
-if (button !== null) {
-  button.addEventListener('click', connectWallet);
+if (button != null) {
+  button.addEventListener('click', claimDiscount('FIFTY'));
+}
+
+const claimItemsButton = document.querySelector('#claim-items-button');
+console.log({ claimItemsButton, button });
+if (claimItemsButton != null) {
+  claimItemsButton.addEventListener('click', claimDiscount('ITEMS'));
 }
 
 init();

@@ -4,21 +4,41 @@ import axios from 'axios';
 const APP_HOST = process.env.HOST;
 import topLevelAuthRedirect from '../helpers/top-level-auth-redirect.js';
 
-async function createShopifySection(shop, token) {
+async function createShopifySection(client) {
   const content = `
     {% if customer %}
     <button 
+    id="crypto-wallet-button" 
       id="crypto-wallet-button" 
+    id="crypto-wallet-button" 
+      id="crypto-wallet-button" 
+    id="crypto-wallet-button" 
+    style="
+      background-color: {{section.settings.button_color}};
+      color: {{section.settings.button_text_color}};
+      border-radius: 5px;
+      padding: 10px;
+      width: 100px;
+      border: none;
+      cursor: pointer;
+      "
+    >
+      Claim Discount
+    </button>
+
+    <button 
+      id="claim-items-button" 
       style="
+        margin-left: 10px;
+        cursor: pointer;
         background-color: {{section.settings.button_color}};
         color: {{section.settings.button_text_color}};
         border-radius: 5px;
         padding: 10px;
         width: 100px;
-        border: none;
-      "
-    >
-      {{section.settings.button_label}}
+        border: none;"
+      >
+        Claim Items
     </button>
     {% endif %}
 
@@ -55,17 +75,9 @@ async function createShopifySection(shop, token) {
     {% endschema %}
   `;
 
-  const client = axios.create({
-    baseURL: `https://${shop}/admin/api/2022-04`,
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Shopify-Access-Token': token,
-    },
-  });
   const themesRaw = await client.get('/themes.json');
   const themes = themesRaw.data.themes;
   const mainTheme = themes.find((theme) => theme.role === 'main');
-  console.log(mainTheme);
   const key = `sections/wallet-button.liquid`;
 
   try {
@@ -75,7 +87,6 @@ async function createShopifySection(shop, token) {
         asset: { key, value: content },
       },
     );
-    console.log(newAssetResult.data);
   } catch (e) {
     console.log('error');
     // console.log(e.message);
@@ -98,7 +109,7 @@ export default function applyAuthMiddleware(app, sessionStorage) {
       res,
       req.query.shop,
       '/auth/callback',
-      app.get('use-online-tokens'),
+      false,
     );
 
     res.redirect(redirectUrl);
@@ -130,6 +141,19 @@ export default function applyAuthMiddleware(app, sessionStorage) {
         res,
         req.query,
       );
+      console.log({ session });
+      if (!session.isOnline) {
+        sessionStorage.saveAccessToken(session.shop, session.accessToken);
+        const redirectUrl = await Shopify.Auth.beginAuth(
+          req,
+          res,
+          req.query.shop,
+          '/auth/callback',
+          true,
+        );
+
+        return res.redirect(redirectUrl);
+      }
 
       const host = req.query.host;
       app.set(
@@ -146,7 +170,21 @@ export default function applyAuthMiddleware(app, sessionStorage) {
         path: '/webhooks',
       });
 
-      sessionStorage.saveAccessToken(session.shop, session.accessToken);
+      const client = axios.create({
+        baseURL: `https://${session.shop}/admin/api/2022-04`,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Shopify-Access-Token': session.accessToken,
+        },
+      });
+
+      await client.post('/webhooks.json', {
+        webhook: {
+          topic: 'orders/paid',
+          address: `${APP_HOST}/webhooks/orders-paid`,
+          format: 'json',
+        },
+      });
 
       if (!response['APP_UNINSTALLED'].success) {
         console.log(
@@ -165,11 +203,14 @@ export default function applyAuthMiddleware(app, sessionStorage) {
         await newTag.save({});
       }
 
-      createShopifySection(session.shop, session.accessToken);
+      createShopifySection(client);
 
       // Redirect to app with shop parameter upon auth
       res.redirect(`/?shop=${session.shop}&host=${host}`);
     } catch (e) {
+      console.log('error');
+      console.log(e.message);
+      console.log(e.response?.data?.errors);
       switch (true) {
         case e instanceof Shopify.Errors.InvalidOAuthError:
           res.status(400);

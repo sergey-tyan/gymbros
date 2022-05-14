@@ -35,23 +35,49 @@ class RedisStore {
     }
   }
 
-  // async mapAddressToCustomer(address, customerId) {
-  //   try {
-  //     return await this.client.set(`address_${address}`, customerId);
-  //   } catch (err) {
-  //     // throw errors, and handle them gracefully in your application
-  //     throw new Error(err);
-  //   }
-  // }
+  getClaimedKey(address, season) {
+    return `claimed/season/${season}/${address.toLowerCase()}`;
+  }
 
-  // async getCustomerByAddress(address) {
-  //   try {
-  //     return await this.client.get(`address_${address}`);
-  //   } catch (err) {
-  //     // throw errors, and handle them gracefully in your application
-  //     throw new Error(err);
-  //   }
-  // }
+  async markAddressWhoClaimed(address, season) {
+    const key = this.getClaimedKey(address, season);
+    try {
+      return await this.client.set(key, true);
+    } catch (err) {
+      // throw errors, and handle them gracefully in your application
+      throw new Error(err);
+    }
+  }
+
+  async didAddressClaim(address, season) {
+    const key = this.getClaimedKey(address, season);
+    try {
+      return await this.client.get(key);
+    } catch (err) {
+      // throw errors, and handle them gracefully in your application
+      throw new Error(err);
+    }
+  }
+
+  async mapCustomerToAddress(customerId, address) {
+    const key = `customer_${customerId}`;
+    try {
+      return await this.client.set(key, address);
+    } catch (err) {
+      // throw errors, and handle them gracefully in your application
+      throw new Error(err);
+    }
+  }
+
+  async getAddressByCustomer(customerId) {
+    const key = `customer_${customerId}`;
+    try {
+      return await this.client.get(key);
+    } catch (err) {
+      // throw errors, and handle them gracefully in your application
+      throw new Error(err);
+    }
+  }
 
   /*
     The storeCallback takes in the Session, and sets a stringified version of it on the redis store

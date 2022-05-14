@@ -37,6 +37,7 @@ const ACTIVE_SHOPIFY_SHOPS = {};
 Shopify.Webhooks.Registry.addHandler('APP_UNINSTALLED', {
   path: '/webhooks',
   webhookHandler: async (topic, shop, body) => {
+    console.log('APP_UNINSTALLED');
     delete ACTIVE_SHOPIFY_SHOPS[shop];
   },
 });
@@ -52,6 +53,7 @@ export async function createServer(
   app.set('active-shopify-shops', ACTIVE_SHOPIFY_SHOPS);
   app.set('use-online-tokens', USE_ONLINE_TOKENS);
   app.use(cookieParser(Shopify.Context.API_SECRET_KEY));
+  app.use(express.json());
 
   applyAuthMiddleware(app, sessionStorage);
 
@@ -67,6 +69,31 @@ export async function createServer(
     }
   });
 
+  app.post('/webhooks/orders-paid', async (req, res) => {
+    try {
+      const { customer, line_items, discount_codes } = req.body;
+      // const keys = Object.keys(req.body);
+      const { id: customerId } = customer;
+      console.log({
+        customerId,
+        line_item: line_items[0],
+        discount_codes,
+      });
+
+      const account = await sessionStorage.getAddressByCustomer(customerId);
+      const season = process.env.CLAIM_SEASON || 1;
+
+      sessionStorage.markAddressWhoClaimed(account, season);
+
+      res.sendStatus(200);
+    } catch (error) {
+      console.log(`Failed to process webhook in orders-paid: ${error}`);
+      if (!res.headersSent) {
+        res.status(500).send(error.message);
+      }
+    }
+  });
+
   app.get('/products-count', verifyRequest(app), async (req, res) => {
     const session = await Shopify.Utils.loadCurrentSession(req, res, true);
     const { Product } = await import(
@@ -76,8 +103,6 @@ export async function createServer(
     const countData = await Product.count({ session });
     res.status(200).send(countData);
   });
-
-  app.use(express.json());
 
   app.use((req, res, next) => {
     const shop = req.query.shop;
