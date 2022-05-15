@@ -7,8 +7,15 @@
 - `S_1_TIER_2_PRODUCT_ID` - product id for the corresponding season and tier
 - `S_1_TIER_3_PRODUCT_ID` - product id for the corresponding season and tier
 - `S_1_TIER_4_PRODUCT_ID` - product id for the corresponding season and tier
-- `NFT_ADDRESS` - address of the NFT contract
 - `INFURA_ID` - infura ID is needed for server to connect to the blockchain
+
+## Installation flow
+
+- When app is installed, it will create a JavaScript file `wallet-connect-script.js` and install it on the Shopify store.
+- This script will look for 2 buttons:
+  - `claim-50-discount-button` - for 50% discount claiming button
+  - `claim-items-button` - for claiming free items button
+- Clicking on each button connects to the metamask and sends a request to the server that fetches discount
 
 ## 50% site-wide discount for NFT holders
 
@@ -29,13 +36,9 @@ function createHash({ account, season }) {
 ```
 
 - Since each discount code on Shopify has to be unique, this ensures that user can only claim once during the season.
-- Discount amount is the price of the product
+- Discount amount is the price of the product. This means that if user adds several "free" products, discount will be only for 1 product and not for 100% of the order.
 - The webhook that is triggered when user purchases the item marks the wallet that has claimed.
 
-## Front-end buttons
+## Database
 
-You can use existing or create 2 buttons with following id-s:
-
-- `claim-50-discount-button` - for 50% discount claiming button
-- `claim-items-button` - for claiming free items button
-- Clicking on each button connects to the metamask and sends a request to the server that fetches discount
+Redis is used as a simple key-value storage. Use `heroku redis:cli -a gymbrosproject` to connect to the redis-cli. `FLUSHALL` to remove all keys.
