@@ -1,6 +1,6 @@
 # Shopify App For Gymbros
 
-## Config variables
+## Config variables that need to be updated
 
 - `CLAIM_SEASON` - (default is 1) current claim season, should be incremented every time new season starts
 - `S_1_TIER_1_PRODUCT_ID` - product id for the corresponding season and tier
@@ -9,12 +9,6 @@
 - `S_1_TIER_4_PRODUCT_ID` - product id for the corresponding season and tier
 - `NFT_ADDRESS` - address of the NFT contract
 - `INFURA_ID` - infura ID is needed for server to connect to the blockchain
-- `SHOPIFY_API_KEY`
-- `SHOPIFY_API_SECRET`
-- `HOST` - app server host
-- `PORT` - 3000
-- `REDIS_URL` - redis url that stores all the data
-- `NODE_ENV` - `dev` or `production`
 
 ## 50% site-wide discount for NFT holders
 

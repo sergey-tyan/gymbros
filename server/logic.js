@@ -32,7 +32,6 @@ async function getNFTCount(address) {
       ? 'https://mainnet.infura.io/v3/'
       : 'https://rinkeby.infura.io/v3/'
   }${INFURA_ID}`;
-  console.log({ RPC, IS_PRODUCTION, ABI });
   const web3 = new Web3(RPC);
   const contract = new web3.eth.Contract(ABI, NFT_ADDRESS);
   try {
@@ -87,9 +86,9 @@ async function createOneTime50percentDiscount({ shop, customerId }) {
   }
 }
 
-function createHash({ account, season }) {
+export function createHash({ account, season }) {
   const input = `${account}_${season}`;
-  return crypto.createHash('md5').update(input).digest('hex');
+  return crypto.createHash('md5').update(input).digest('hex').toLowerCase();
 }
 
 async function createOneTimeProductDiscount({
@@ -193,7 +192,7 @@ export function setup(app) {
     // Checking if product is active in Shopify Admin panel
     const productRaw = await apiClient.get(`/products/${productId}.json`);
     const { status, variants } = productRaw.data.product;
-    const { variantId, price } = variants[0];
+    const { id: variantId, price } = variants[0];
 
     if (status !== 'active') {
       return res.send({ error: 'Claiming is not possible at the moment' });

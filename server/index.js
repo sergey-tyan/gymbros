@@ -7,8 +7,7 @@ import 'dotenv/config';
 
 import RedisStore from './helpers/session-store.js';
 import applyAuthMiddleware from './middleware/auth.js';
-import verifyRequest from './middleware/verify-request.js';
-import { setup } from './logic.js';
+import { setup, createHash } from './logic.js';
 
 const USE_ONLINE_TOKENS = true;
 const TOP_LEVEL_OAUTH_COOKIE = 'shopify_top_level_oauth';
@@ -85,8 +84,15 @@ export async function createServer(
 
       const account = await sessionStorage.getAddressByCustomer(customerId);
       const season = process.env.CLAIM_SEASON || 1;
+      const codeFromHash = createHash({ account, season });
 
-      sessionStorage.markAddressWhoClaimed(account, season);
+      const orderUsedOneOffSeasonalDiscount = discount_codes.some(
+        (discount) => discount.code.toLowerCase() === codeFromHash,
+      );
+      console.log({ orderUsedOneOffSeasonalDiscount });
+      if (orderUsedOneOffSeasonalDiscount) {
+        sessionStorage.markAddressWhoClaimed(account, season);
+      }
 
       res.sendStatus(200);
     } catch (error) {

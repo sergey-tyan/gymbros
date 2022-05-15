@@ -14,12 +14,11 @@ function App() {
         <a href="https://dashboard.heroku.com/apps/gymbrosproject/settings">
           heroku settings
         </a>{' '}
-        to update the configuration
-      </h2>
-      <p>
+        to update the configuration.
+        <br />
         Buttons can be styled in theme code editor
-        "sections/wallet-button.liquid"
-      </p>
+        "sections/wallet-button.liquid" if needed
+      </h2>
     </div>
   );
 }
