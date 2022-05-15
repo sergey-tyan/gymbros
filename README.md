@@ -11,7 +11,6 @@
 - `INFURA_ID` - infura ID is needed for server to connect to the blockchain
 - `SHOPIFY_API_KEY`
 - `SHOPIFY_API_SECRET`
-- `SHOP` - shop url that looks like `[shop].myshopify.com`
 - `HOST` - app server host
 - `PORT` - 3000
 - `REDIS_URL` - redis url that stores all the data

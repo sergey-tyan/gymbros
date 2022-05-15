@@ -6,7 +6,7 @@ import axios from 'axios';
 import RedisStore from './helpers/session-store.js';
 
 const redisStore = new RedisStore();
-const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+const IS_PRODUCTION = process.env.PROD === 'true';
 const { INFURA_ID, NFT_ADDRESS } = process.env;
 
 const corsOptions = {
@@ -32,6 +32,7 @@ async function getNFTCount(address) {
       ? 'https://mainnet.infura.io/v3/'
       : 'https://rinkeby.infura.io/v3/'
   }${INFURA_ID}`;
+  console.log({ RPC, IS_PRODUCTION, ABI });
   const web3 = new Web3(RPC);
   const contract = new web3.eth.Contract(ABI, NFT_ADDRESS);
   try {
@@ -39,7 +40,7 @@ async function getNFTCount(address) {
     console.log({ res });
     return parseInt(res);
   } catch (e) {
-    console.log(e.reason);
+    console.log(e);
     return 0;
   }
 }
