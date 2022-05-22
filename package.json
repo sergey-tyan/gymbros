@@ -16,7 +16,7 @@
   },
   "type": "module",
   "engines": {
-    "node": "16.13.1"
+    "node": "16.15.0"
   },
   "dependencies": {
     "@shopify/shopify-api": "3.0.0",
