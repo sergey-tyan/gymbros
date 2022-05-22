@@ -64,7 +64,7 @@ async function addProductToCart(variantId) {
 
 function claimDiscount(type) {
   return async function () {
-    alert('claiming ' + type);
+    //alert('claiming ' + type);
     const url = DISCOUNT_TYPES[type];
     const account = await connectToMetamask();
     const discountData = await getDiscountCodeForAccount(account, url);
