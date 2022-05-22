@@ -86,7 +86,7 @@ async function getDiscountCodeForAccount(account, url) {
 
   const customerId = window.__st.cid;
   if (!customerId) {
-    alert('User is not logged in');
+    alert('Please login at the checkout first!');
   }
 
   const params = {
