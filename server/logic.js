@@ -10,7 +10,7 @@ const IS_PRODUCTION = process.env.PROD === 'true';
 const { INFURA_ID, NFT_ADDRESS } = process.env;
 
 const corsOptions = {
-  origin: 'https://sergey-metamask-test.myshopify.com',
+  origin: 'https://gymbros-official.myshopify.com',
   optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 
