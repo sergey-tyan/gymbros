@@ -75,9 +75,14 @@ function claimDiscount(type) {
     await addProductToCart(discountData.variantId);
     if (type === "ITEMS") {
       alert("Checkout to get your free items");
+      window.location.href = `/discount/${discountData.discountCode}?redirect=/cart`;
+      return;
     }
+    alert("Discount has been applied at the checkout!");
+    window.location.href = `/discount/${discountData.discountCode}`;
+    return;
+
     // this will apply the discount and redirect to cart
-    window.location.href = `/discount/${discountData.discountCode}?redirect=/cart`;
   };
 }
 
