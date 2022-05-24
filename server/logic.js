@@ -6,7 +6,7 @@ import axios from "axios";
 import RedisStore from "./helpers/session-store.js";
 
 const redisStore = new RedisStore();
-const IS_PRODUCTION = process.env.PROD === "true";
+const USE_MAINNET = process.env.USE_MAINNET === "true";
 const { INFURA_ID, NFT_ADDRESS, SHOP_URL } = process.env;
 
 const corsOptions = {
@@ -25,10 +25,10 @@ function createApiClient(shop, token) {
 }
 
 async function getNFTCount(address) {
-  const abiModule = await import(`./abi/${IS_PRODUCTION ? "prod" : "dev"}.js`);
+  const abiModule = await import(`./abi/${USE_MAINNET ? "prod" : "dev"}.js`);
   const ABI = abiModule.default;
   const RPC = `${
-    IS_PRODUCTION
+    USE_MAINNET
       ? "https://mainnet.infura.io/v3/"
       : "https://rinkeby.infura.io/v3/"
   }${INFURA_ID}`;
