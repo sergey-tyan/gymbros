@@ -10,7 +10,7 @@ const IS_PRODUCTION = process.env.PROD === "true";
 const { INFURA_ID, NFT_ADDRESS, SHOP_URL } = process.env;
 
 const corsOptions = {
-  origin: SHOP_URL,
+  origin: "https://gymbrosstore.com",
   optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 
