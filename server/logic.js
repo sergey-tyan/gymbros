@@ -10,7 +10,7 @@ const IS_PRODUCTION = process.env.PROD === "true";
 const { INFURA_ID, NFT_ADDRESS, SHOP_URL } = process.env;
 
 const corsOptions = {
-  origin: "https://gymbrosstore.com",
+  origin: SHOP_URL,
   optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 
@@ -141,7 +141,9 @@ export function setup(app) {
     const { account, shop, customerId } = req.query;
     const count = await getNFTCount(account);
     if (count === 0) {
-      return res.send(null);
+      return res.send({
+        error: "Account doesn't have any Gymbros NFT-s",
+      });
     }
 
     const discountCode = await createOneTime50percentDiscount({
